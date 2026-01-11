@@ -1,0 +1,26 @@
+[workspace]
+resolver = "3"
+members = [
+    "shared/*",
+    "services/*",
+    "gateway",
+]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2024"
+authors = ["Edo"]
+
+[workspace.dependencies]
+tonic = "0.14.2"
+prost = "0.14.3"
+tonic-prost = "0.14.2"
+chrono = "0.4.42"
+
+# Build
+tonic-prost-build = "0.14.2"
+walkdir = "2.5.0"
+
+# Internal crates
+gateway = {path = "./gateway"}
+proto_definition = {path = "shared/proto-definitions" }
