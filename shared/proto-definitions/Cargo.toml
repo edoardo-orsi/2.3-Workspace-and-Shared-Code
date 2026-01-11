@@ -1,0 +1,15 @@
+[package]
+name = "proto-definitions"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+
+[dependencies]
+tonic.workspace = true
+prost.workspace = true
+tonic-prost.workspace = true
+
+[build-dependencies]
+tonic-prost-build.workspace = true
+walkdir.workspace = true
+chrono.workspace = true
