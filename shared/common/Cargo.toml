@@ -5,3 +5,16 @@ edition.workspace = true
 authors.workspace = true
 
 [dependencies]
+serde.workspace = true
+
+tracing.workspace = true
+tracing-subscriber.workspace = true
+
+figment.workspace = true
+tonic.workspace = true
+thiserror.workspace = true
+
+[dev-dependencies]
+tracing-test.workspace = true
+tempdir.workspace = true
+serial_test.workspace = true

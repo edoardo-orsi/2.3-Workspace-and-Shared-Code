@@ -12,14 +12,31 @@ edition = "2024"
 authors = ["Edo"]
 
 [workspace.dependencies]
+# gRPC
 tonic = "0.14.2"
 prost = "0.14.3"
 tonic-prost = "0.14.2"
 chrono = "0.4.42"
 
+# Transfer
+serde = { version = "1.0.228", features = ["derive"] }
+
+# Config
+figment = { version = "0.10.19", features = ["yaml", "env"] }
+thiserror = { version = "2.0.17" }
+
+# Tracing
+tracing = "0.1.44"
+tracing-subscriber = { version = "0.3.22", features = ["env-filter", "json"] }
+
 # Build
 tonic-prost-build = "0.14.2"
 walkdir = "2.5.0"
+
+# Testing
+tracing-test = "0.2.5"
+tempdir = "0.3.7"
+serial_test = "3.3.1"
 
 # Internal crates
 gateway = {path = "./gateway"}
