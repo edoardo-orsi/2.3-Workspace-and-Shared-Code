@@ -1,0 +1,17 @@
+base:
+  service:
+    name: "gateway"
+    version: "0.1.0"
+
+  logging:
+    level: "debug"
+    format: "pretty"
+
+server:
+  host: "0.0.0.0"
+  port: 8080
+
+services:
+  greeter:
+    url: "http://localhost:50051"
+    timeout_secs: 5

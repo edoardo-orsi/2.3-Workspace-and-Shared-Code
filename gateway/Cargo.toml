@@ -1,6 +1,24 @@
 [package]
 name = "gateway"
-version = "0.1.0"
-edition = "2024"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
 
 [dependencies]
+# Workspaces
+common = { path = "../shared/common" }
+
+# Communication
+tokio.workspace = true
+serde.workspace = true
+
+# Configuration
+figment.workspace = true
+validator.workspace = true
+tempfile = "3.24.0"
+serial_test = "3.3.1"
+
+[dev-dependencies]
+tracing-test.workspace = true
+tempdir.workspace = true
+serial_test.workspace = true

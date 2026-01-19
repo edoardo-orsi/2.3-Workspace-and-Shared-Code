@@ -18,8 +18,9 @@ prost = "0.14.3"
 tonic-prost = "0.14.2"
 chrono = "0.4.42"
 
-# Transfer
+# Transfer & Communication
 serde = { version = "1.0.228", features = ["derive"] }
+tokio = { version = "1.49.0", features = ["rt-multi-thread"] }
 
 # Config
 figment = { version = "0.10.19", features = ["yaml", "env"] }
@@ -40,6 +41,6 @@ tempdir = "0.3.7"
 serial_test = "3.3.1"
 
 # Internal crates
-gateway = {path = "./gateway"}
-proto_definition = {path = "shared/proto-definitions" }
-common = {path = "shared/common"}
+gateway = { path = "./gateway" }
+proto_definition = { path = "shared/proto-definitions" }
+common = { path = "shared/common" }
