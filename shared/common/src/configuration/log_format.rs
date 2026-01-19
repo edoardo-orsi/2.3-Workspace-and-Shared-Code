@@ -1,7 +1,8 @@
+use serde::Deserialize;
 use std::fmt;
 use std::fmt::{Display, Formatter};
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Deserialize)]
 pub enum LogFormat {
     Json,
     Pretty,
