@@ -65,7 +65,7 @@ fn validate_log_format(log_format: &LogFormat) -> Result<(), ValidationError> {
     let valid_formats = ["json", "pretty", "compact"];
 
     let format = log_format.to_string();
-    if valid_formats.contains(&format.as_str()) {
+    if valid_formats.contains(&format.to_lowercase().as_str()) {
         Ok(())
     } else {
         Err(ValidationError::new("invalid_log_format"))
