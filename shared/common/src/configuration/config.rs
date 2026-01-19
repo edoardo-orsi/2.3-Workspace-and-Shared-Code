@@ -1,15 +1,19 @@
-use std::path::Path;
-use figment::Figment;
-use figment::providers::{Env, Format, Yaml};
-use serde::{Deserialize, Serialize};
 use crate::app_error::AppError;
 use crate::configuration::logging::LoggingConfig;
 use crate::configuration::service::ServiceConfig;
+use figment::providers::{Env, Format, Yaml};
+use figment::Figment;
+use serde::{Deserialize, Serialize};
+use std::path::Path;
+use validator::Validate;
 
 /// Shared configuration
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, Validate)]
 pub struct Config {
+    #[validate(nested)]
     pub service: ServiceConfig,
+
+    #[validate(nested)]
     pub logging: LoggingConfig,
 }
 
@@ -24,45 +28,24 @@ impl Config {
         let config: Config = Figment::new()
             // Start with base config
             .merge(Yaml::file(base_config_path))
-
             // Merge environment-specific config
             .merge(Yaml::file(env_config_path))
-
             // Environment variables override everything
             // Format: APP__SERVER__PORT=8080 -> server.port = 8080
             .merge(Env::prefixed("APP__").split("__"))
-            
             .extract()
             .map_err(|e| AppError::ConfigError(e.to_string()))?;
 
-        // let _ = config.logging.init();
+        // Run Validator
+        config
+            .validate()
+            .map_err(|e| AppError::ConfigError(format!("Validation failed: {}", e)))?;
 
         Ok(config)
     }
 
     pub fn init_logging(&self) -> Result<(), AppError> {
         let _ = self.logging.init();
-        Ok(())
-    }
-
-    /// Validate configuration
-    pub fn validate(&self) -> Result<(), AppError> {
-        if self.service.name.is_empty() {
-            return Err(AppError::ConfigError("Service name cannot be empty".into()));
-        }
-
-        if self.service.version.is_empty() {
-            return Err(AppError::ConfigError("Service version cannot be empty".into()));
-        }
-
-        let valid_levels = ["trace", "debug", "info", "warn", "error"];
-        if !valid_levels.contains(&self.logging.level.as_str()) {
-            return Err(AppError::ConfigError(format!(
-                "Invalid log level: {}",
-                self.logging.level
-            )));
-        }
-
         Ok(())
     }
 }

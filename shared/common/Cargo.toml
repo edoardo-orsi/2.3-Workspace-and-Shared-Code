@@ -13,6 +13,7 @@ tracing-subscriber.workspace = true
 figment.workspace = true
 tonic.workspace = true
 thiserror.workspace = true
+validator.workspace = true
 
 [dev-dependencies]
 tracing-test.workspace = true
