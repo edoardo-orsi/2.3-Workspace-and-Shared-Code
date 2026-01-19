@@ -13,12 +13,8 @@ tokio.workspace = true
 serde.workspace = true
 
 # Configuration
-figment.workspace = true
 validator.workspace = true
-tempfile = "3.24.0"
-serial_test = "3.3.1"
 
 [dev-dependencies]
-tracing-test.workspace = true
 tempdir.workspace = true
 serial_test.workspace = true
