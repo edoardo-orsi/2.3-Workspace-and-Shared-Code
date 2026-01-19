@@ -1,12 +1,11 @@
 #[cfg(test)]
 mod tests {
-    use std::{env, fs};
+    use common::BaseConfig;
     use serial_test::serial;
+    use std::{env, fs};
     use tempdir::TempDir;
-    use tonic::codegen::http::StatusCode;
     use tracing::{debug, error, info, warn};
     use tracing_test::traced_test;
-    use common::{AppError, Config};
 
     // Helper to create temporary config file
     fn create_temp_config(dir: &TempDir, name: &str, content: &str) {
@@ -64,7 +63,7 @@ logging:
 "#,
         );
 
-        let config = Config::load_from_path(temp_dir.path()).unwrap();
+        let config = BaseConfig::load_from_path(temp_dir.path()).unwrap();
 
         assert_eq!(config.service.name, "gateway".to_string());
         assert_eq!(config.service.version, "0.1.0".to_string());
@@ -103,15 +102,19 @@ logging:
         );
 
         // Set environment to prod
-        unsafe { env::set_var("APP_ENV", "prod"); }
+        unsafe {
+            env::set_var("APP_ENV", "prod");
+        }
 
-        let config = Config::load_from_path(temp_dir.path()).unwrap();
+        let config = BaseConfig::load_from_path(temp_dir.path()).unwrap();
 
-        assert_eq!(config.service.version, "0.2.0");            // Overridden
-        assert_eq!(config.logging.level, "warn".to_string());   // Overridden
+        assert_eq!(config.service.version, "0.2.0"); // Overridden
+        assert_eq!(config.logging.level, "warn".to_string()); // Overridden
         assert_eq!(config.service.name, "gateway".to_string()); // From base
 
-        unsafe { env::remove_var("APP_ENV"); }
+        unsafe {
+            env::remove_var("APP_ENV");
+        }
     }
 
     #[test]
@@ -133,16 +136,24 @@ logging:
         );
 
         // Override with environment variables
-        unsafe { env::set_var("APP__SERVICE__NAME", "new_service"); }
-        unsafe { env::set_var("APP__LOGGING__LEVEL", "debug"); }
+        unsafe {
+            env::set_var("APP__SERVICE__NAME", "new_service");
+        }
+        unsafe {
+            env::set_var("APP__LOGGING__LEVEL", "debug");
+        }
 
-        let config = Config::load_from_path(temp_dir.path()).unwrap();
+        let config = BaseConfig::load_from_path(temp_dir.path()).unwrap();
 
         assert_eq!(config.service.name, "new_service"); // From env var
         assert_eq!(config.logging.level, "debug"); // From env var
 
         // Cleanup
-        unsafe { env::remove_var("APP__SERVICE__NAME"); }
-        unsafe { env::remove_var("APP__LOGGING__LEVEL"); }
+        unsafe {
+            env::remove_var("APP__SERVICE__NAME");
+        }
+        unsafe {
+            env::remove_var("APP__LOGGING__LEVEL");
+        }
     }
 }

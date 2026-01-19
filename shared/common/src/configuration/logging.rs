@@ -1,12 +1,11 @@
 use crate::configuration::log_format::LogFormat;
-use serde::{Deserialize, Serialize};
 use tracing_subscriber::fmt::format::FmtSpan;
 use tracing_subscriber::layer::SubscriberExt;
 use tracing_subscriber::util::SubscriberInitExt;
 use tracing_subscriber::{fmt, EnvFilter, Layer};
 use validator::{Validate, ValidationError};
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, Validate)]
+#[derive(Debug, Clone, PartialEq, Eq, Validate)]
 pub struct LoggingConfig {
     #[validate(custom(function = "validate_log_level", message = "Invalid log level."))]
     pub level: String,

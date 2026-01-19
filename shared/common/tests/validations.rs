@@ -1,6 +1,6 @@
 #[cfg(test)]
 mod tests {
-    use common::Config;
+    use common::BaseConfig;
     use serial_test::serial;
     use std::fs;
     use tempdir::TempDir;
@@ -30,7 +30,7 @@ logging:
 "#,
         );
 
-        let result = Config::load_from_path(temp_dir.path());
+        let result = BaseConfig::load_from_path(temp_dir.path());
         assert!(result.is_err());
 
         let err = result.unwrap_err();
@@ -56,7 +56,7 @@ logging:
 "#,
         );
 
-        let result = Config::load_from_path(temp_dir.path());
+        let result = BaseConfig::load_from_path(temp_dir.path());
         assert!(result.is_err());
         assert!(result.unwrap_err().contains("Invalid log level"));
     }
@@ -79,7 +79,7 @@ logging:
 "#,
         );
 
-        let config = Config::load_from_path(temp_dir.path());
+        let config = BaseConfig::load_from_path(temp_dir.path());
 
         assert!(config.is_ok());
     }
