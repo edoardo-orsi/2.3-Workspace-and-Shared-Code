@@ -16,6 +16,7 @@ thiserror.workspace = true
 validator.workspace = true
 
 [dev-dependencies]
+test-helpers = { path = "../test-helpers" }
 tracing-test.workspace = true
 tempdir.workspace = true
 serial_test.workspace = true

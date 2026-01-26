@@ -2,16 +2,8 @@
 mod tests {
     use gateway::GatewayConfig;
     use serial_test::serial;
-    use std::fs::File;
-    use std::io::Write;
     use tempdir::TempDir;
-
-    // Helper to create the YAML files in a temporary directory
-    fn create_test_config(dir: &TempDir, name: &str, content: &str) {
-        let file_path = dir.path().join(name);
-        let mut file = File::create(file_path).unwrap();
-        writeln!(file, "{}", content).unwrap();
-    }
+    use test_helpers::create_temp_config;
 
     #[test]
     #[serial]
@@ -19,7 +11,7 @@ mod tests {
         let temp_dir = TempDir::new("test_gateway_config_valid_load").unwrap();
 
         // 1. Create config.yaml
-        create_test_config(
+        create_temp_config(
             &temp_dir,
             "config.yaml",
             r#"
@@ -42,7 +34,7 @@ services:
         );
 
         // 2. Create the env-specific file (config.dev.yaml is default)
-        create_test_config(&temp_dir, "config.dev.yaml", "{}");
+        create_temp_config(&temp_dir, "config.dev.yaml", "{}");
 
         // 3. Load
         let result = GatewayConfig::load_from_path(temp_dir.path());
@@ -64,7 +56,7 @@ services:
     fn test_validation_invalid_url() {
         let temp_dir = TempDir::new("test_validation_invalid_url").unwrap();
 
-        create_test_config(
+        create_temp_config(
             &temp_dir,
             "config.yaml",
             r#"
@@ -81,7 +73,7 @@ services:
     url: "not-a-url"  # This should fail validation
 "#,
         );
-        create_test_config(&temp_dir, "config.dev.yaml", "{}");
+        create_temp_config(&temp_dir, "config.dev.yaml", "{}");
 
         let result = GatewayConfig::load_from_path(temp_dir.path());
 
@@ -96,7 +88,7 @@ services:
     fn test_validation_port_out_of_range() {
         let temp_dir = TempDir::new("test_validation_port_out_of_range").unwrap();
 
-        create_test_config(
+        create_temp_config(
             &temp_dir,
             "config.yaml",
             r#"
@@ -110,7 +102,7 @@ services:
   greeter: { url: "http://localhost" }
 "#,
         );
-        create_test_config(&temp_dir, "config.dev.yaml", "{}");
+        create_temp_config(&temp_dir, "config.dev.yaml", "{}");
 
         let result = GatewayConfig::load_from_path(temp_dir.path());
 
@@ -124,7 +116,7 @@ services:
     fn test_validation_port_is_zero() {
         let temp_dir = TempDir::new("test_validation_port_out_of_range").unwrap();
 
-        create_test_config(
+        create_temp_config(
             &temp_dir,
             "config.yaml",
             r#"
@@ -138,7 +130,7 @@ services:
   greeter: { url: "http://localhost" }
 "#,
         );
-        create_test_config(&temp_dir, "config.dev.yaml", "{}");
+        create_temp_config(&temp_dir, "config.dev.yaml", "{}");
 
         let result = GatewayConfig::load_from_path(temp_dir.path());
 
@@ -152,7 +144,7 @@ services:
     fn test_env_override() {
         let temp_dir = TempDir::new("test_env_override").unwrap();
 
-        create_test_config(
+        create_temp_config(
             &temp_dir,
             "config.yaml",
             r#"
@@ -164,7 +156,7 @@ services: { greeter: { url: "http://localhost" } }
 "#,
         );
         // config.dev.yaml overrides the port
-        create_test_config(&temp_dir, "config.dev.yaml", "server: { port: 9999 }");
+        create_temp_config(&temp_dir, "config.dev.yaml", "server: { port: 9999 }");
 
         let config = GatewayConfig::load_from_path(temp_dir.path()).unwrap();
 

@@ -16,5 +16,6 @@ serde.workspace = true
 validator.workspace = true
 
 [dev-dependencies]
+test-helpers = { path = "../shared/test-helpers" }
 tempdir.workspace = true
 serial_test.workspace = true

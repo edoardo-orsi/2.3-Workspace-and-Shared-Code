@@ -1,10 +1,10 @@
 #[cfg(test)]
 mod tests {
-    use crate::create_temp_config;
     use common::BaseConfig;
     use serial_test::serial;
     use std::env;
     use tempdir::TempDir;
+    use test_helpers::create_temp_config;
     use tracing::{debug, error, info, warn};
     use tracing_test::traced_test;
 

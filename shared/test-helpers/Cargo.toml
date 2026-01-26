@@ -1,0 +1,8 @@
+[package]
+name = "test-helpers"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+
+[dependencies]
+tempdir.workspace = true
