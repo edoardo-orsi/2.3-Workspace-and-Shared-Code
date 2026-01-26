@@ -1,17 +1,12 @@
 #[cfg(test)]
 mod tests {
+    use crate::create_temp_config;
     use common::BaseConfig;
     use serial_test::serial;
-    use std::{env, fs};
+    use std::env;
     use tempdir::TempDir;
     use tracing::{debug, error, info, warn};
     use tracing_test::traced_test;
-
-    // Helper to create temporary config file
-    fn create_temp_config(dir: &TempDir, name: &str, content: &str) {
-        let path = dir.path().join(name);
-        fs::write(path, content).unwrap();
-    }
 
     #[traced_test]
     #[test]
@@ -138,8 +133,6 @@ logging:
         // Override with environment variables
         unsafe {
             env::set_var("APP__SERVICE__NAME", "new_service");
-        }
-        unsafe {
             env::set_var("APP__LOGGING__LEVEL", "debug");
         }
 
@@ -151,8 +144,6 @@ logging:
         // Cleanup
         unsafe {
             env::remove_var("APP__SERVICE__NAME");
-        }
-        unsafe {
             env::remove_var("APP__LOGGING__LEVEL");
         }
     }
