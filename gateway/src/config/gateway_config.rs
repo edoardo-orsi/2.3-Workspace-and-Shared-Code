@@ -1,5 +1,5 @@
 use crate::{ServerConfig, ServicesConfig};
-use common::{load_and_validate, AppError, BaseConfig};
+use common::{AppError, BaseConfig, ServiceConfigLogic};
 use serde::Deserialize;
 use std::path::Path;
 use validator::Validate;
@@ -16,9 +16,11 @@ pub struct GatewayConfig {
     pub services: ServicesConfig,
 }
 
+impl ServiceConfigLogic for GatewayConfig {}
+
 impl GatewayConfig {
     pub fn load_from_path(base_dir: &Path) -> Result<Self, AppError> {
-        let config = load_and_validate(base_dir)?;
+        let config = Self::load_and_validate(base_dir)?;
         Ok(config)
     }
 }
