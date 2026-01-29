@@ -3,7 +3,7 @@ use tonic::codegen::http::StatusCode;
 
 /// Application-wide error type
 #[derive(Error, Debug)]
-pub enum AppError {
+pub enum CommonError {
     #[error("Configuration error: {0}")]
     ConfigError(String),
 
@@ -16,10 +16,10 @@ pub enum AppError {
     #[error("Internal server error: {0}")]
     InternalError(String),
 
-    #[error("Backend error: {0}")]
-    BackendError(String),
+    #[error("Transport/Connection error: {0}")]
+    TransportError(#[from] tonic::transport::Error),
 
-    #[error("gRPC error: {0}")]
+    #[error("gRPC status error: {0}")]
     GrpcError(#[from] tonic::Status),
 
     #[error("IO error: {0}")]
@@ -29,15 +29,15 @@ pub enum AppError {
     Other(String),
 }
 
-impl AppError {
+impl CommonError {
     pub fn status_code(&self) -> StatusCode {
         match self {
-            AppError::InvalidInput(_) => StatusCode::BAD_REQUEST,
-            AppError::NotFound(_) => StatusCode::NOT_FOUND,
-            AppError::ConfigError(_) => StatusCode::INTERNAL_SERVER_ERROR,
-            AppError::InternalError(_) => StatusCode::INTERNAL_SERVER_ERROR,
-            AppError::BackendError(_) => StatusCode::BAD_GATEWAY,
-            AppError::GrpcError(status) => match status.code() {
+            CommonError::InvalidInput(_) => StatusCode::BAD_REQUEST,
+            CommonError::NotFound(_) => StatusCode::NOT_FOUND,
+            CommonError::ConfigError(_) => StatusCode::INTERNAL_SERVER_ERROR,
+            CommonError::InternalError(_) => StatusCode::INTERNAL_SERVER_ERROR,
+            CommonError::TransportError(_) => StatusCode::BAD_GATEWAY,
+            CommonError::GrpcError(status) => match status.code() {
                 tonic::Code::InvalidArgument => StatusCode::BAD_REQUEST,
                 tonic::Code::NotFound => StatusCode::NOT_FOUND,
                 tonic::Code::Unauthenticated => StatusCode::UNAUTHORIZED,

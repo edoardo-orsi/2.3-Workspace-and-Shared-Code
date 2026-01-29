@@ -1,4 +1,4 @@
-use crate::app_error::AppError;
+use crate::common_error::CommonError;
 use crate::configuration::logging::LoggingConfig;
 use crate::configuration::service::ServiceConfig;
 use crate::ServiceConfigLogic;
@@ -19,12 +19,12 @@ impl ServiceConfigLogic for BaseConfig {}
 
 impl BaseConfig {
     /// Load configuration from multiple sources
-    pub fn load_from_path(base_dir: &Path) -> Result<Self, AppError> {
+    pub fn load_from_path(base_dir: &Path) -> Result<Self, CommonError> {
         let config = Self::load_and_validate(base_dir)?;
         Ok(config)
     }
 
-    pub fn init_logging(&self) -> Result<(), AppError> {
+    pub fn init_logging(&self) -> Result<(), CommonError> {
         let _ = self.logging.init();
         Ok(())
     }

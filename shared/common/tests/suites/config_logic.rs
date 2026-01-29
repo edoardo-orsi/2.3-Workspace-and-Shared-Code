@@ -1,6 +1,6 @@
 #[cfg(test)]
 mod tests {
-    use common::{AppError, ServiceConfigLogic};
+    use common::{CommonError, ServiceConfigLogic};
     use serde::Deserialize;
     use serial_test::serial;
     use std::fs::File;
@@ -78,7 +78,7 @@ mod tests {
         let result = TestConfig::load_and_validate(config_path);
 
         assert!(result.is_err());
-        if let Err(AppError::ConfigError(msg)) = result {
+        if let Err(CommonError::ConfigError(msg)) = result {
             assert!(msg.contains("Validation failed"));
         } else {
             panic!("Expected ConfigError from validation");
