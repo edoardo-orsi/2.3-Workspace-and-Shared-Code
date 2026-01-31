@@ -22,6 +22,9 @@ pub enum CommonError {
     #[error("gRPC status error: {0}")]
     GrpcError(#[from] tonic::Status),
 
+    #[error("Invalid URI: {0}")]
+    UriError(#[from] tonic::codegen::http::uri::InvalidUri),
+
     #[error("IO error: {0}")]
     IoError(#[from] std::io::Error),
 
