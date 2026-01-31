@@ -3,6 +3,7 @@ use axum::response::{IntoResponse, Response};
 use axum::Json;
 use common::{CommonError, ErrorLogic};
 use serde_json::json;
+use std::net::AddrParseError;
 use thiserror::Error;
 
 #[derive(Error, Debug)]
@@ -29,6 +30,12 @@ impl From<tonic::Status> for GatewayError {
 impl From<tonic::transport::Error> for GatewayError {
     fn from(err: tonic::transport::Error) -> Self {
         GatewayError::Common(CommonError::TransportError(err))
+    }
+}
+
+impl From<AddrParseError> for GatewayError {
+    fn from(err: AddrParseError) -> Self {
+        GatewayError::Common(CommonError::AddrParseError(err))
     }
 }
 

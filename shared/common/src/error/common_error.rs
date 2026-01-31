@@ -1,3 +1,4 @@
+use std::net::AddrParseError;
 use thiserror::Error;
 use tonic::codegen::http::StatusCode;
 
@@ -15,6 +16,9 @@ pub enum CommonError {
 
     #[error("Internal server error: {0}")]
     InternalError(String),
+
+    #[error("Address parse error: {0}")]
+    AddrParseError(#[from] AddrParseError),
 
     #[error("Transport/Connection error: {0}")]
     TransportError(#[from] tonic::transport::Error),
