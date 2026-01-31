@@ -1,5 +1,5 @@
-mod common_error;
 mod configuration;
+mod error;
 
-pub use common_error::*;
 pub use configuration::*;
+pub use error::*;

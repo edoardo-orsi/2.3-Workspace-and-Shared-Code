@@ -1,7 +1,7 @@
 use axum::http::StatusCode;
 use axum::response::{IntoResponse, Response};
 use axum::Json;
-use common::CommonError;
+use common::{CommonError, ErrorLogic};
 use serde_json::json;
 use std::error::Error;
 use thiserror::Error;
@@ -11,27 +11,33 @@ pub enum GatewayError {
     #[error(transparent)]
     Common(#[from] CommonError),
 
-    #[error("Invalid URI: {0}")]
-    UriError(#[from] tonic::codegen::http::uri::InvalidUri),
+    #[error("Gateway specific logic error: {0}")]
+    GatewaySpecific(String),
+}
 
-    #[error(transparent)]
-    TransportError(#[from] tonic::transport::Error),
+impl From<std::io::Error> for GatewayError {
+    fn from(err: std::io::Error) -> Self {
+        GatewayError::Common(CommonError::IoError(err))
+    }
+}
 
-    #[error(transparent)]
-    GrpcStatus(#[from] tonic::Status),
+impl From<tonic::Status> for GatewayError {
+    fn from(err: tonic::Status) -> Self {
+        GatewayError::Common(CommonError::GrpcError(err))
+    }
+}
 
-    #[error("Internal gateway error: {0}")]
-    Internal(String),
+impl From<tonic::transport::Error> for GatewayError {
+    fn from(err: tonic::transport::Error) -> Self {
+        GatewayError::Common(CommonError::TransportError(err))
+    }
 }
 
 impl IntoResponse for GatewayError {
     fn into_response(self) -> Response {
         let status = match &self {
             GatewayError::Common(inner) => inner.status_code(),
-            GatewayError::UriError(_) => StatusCode::BAD_REQUEST,
-            GatewayError::TransportError(_) => StatusCode::BAD_GATEWAY,
-            GatewayError::GrpcStatus(s) => CommonError::GrpcError(s.clone()).status_code(),
-            GatewayError::Internal(_) => StatusCode::INTERNAL_SERVER_ERROR,
+            GatewayError::GatewaySpecific(_) => StatusCode::INTERNAL_SERVER_ERROR,
         };
 
         // This gathers all the "why" messages in the chain
@@ -44,19 +50,5 @@ impl IntoResponse for GatewayError {
         }));
 
         (status, body).into_response()
-    }
-}
-
-impl GatewayError {
-    /// Iterates through the source chain to build a full error report
-    fn report_chain(&self) -> Vec<String> {
-        let mut chain = Vec::new();
-        let mut curr: Option<&dyn Error> = Some(self);
-
-        while let Some(source) = curr {
-            chain.push(source.to_string());
-            curr = source.source();
-        }
-        chain
     }
 }

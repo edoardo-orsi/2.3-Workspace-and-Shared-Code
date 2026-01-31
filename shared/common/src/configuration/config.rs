@@ -1,6 +1,6 @@
-use crate::common_error::CommonError;
 use crate::configuration::logging::LoggingConfig;
 use crate::configuration::service::ServiceConfig;
+use crate::error::CommonError;
 use crate::ServiceConfigLogic;
 use serde::Deserialize;
 use std::path::Path;
