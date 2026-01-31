@@ -28,6 +28,9 @@ pub enum CommonError {
     #[error("IO error: {0}")]
     IoError(#[from] std::io::Error),
 
+    #[error("Missing mandatory secret: {0}")]
+    MissingSecret(String),
+
     #[error("Other error: {0}")]
     Other(String),
 }
