@@ -51,7 +51,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             .build_server(true)
             .build_client(true)
             .type_attribute(".", "#[derive(serde::Serialize, serde::Deserialize)] #[serde(rename_all = \"camelCase\")]")
-            .field_attribute(".", "#[serde(skip_serializing_if = \"Option::is_none\")]")
             .compile_protos(&[proto], &[&proto_root])?;
 
         // Add to our dynamic mod.rs
