@@ -42,7 +42,13 @@ tracing-test = "0.2.5"
 tempdir = "0.3.7"
 serial_test = "3.3.1"
 
+# Macro
+syn = { version = "2.0.114", features = ["full"] }
+quote = "1.0.44"
+proc-macro2 = "1.0.106"
+
 # Internal crates
 gateway = { path = "./gateway" }
 proto_definition = { path = "shared/proto-definitions" }
 common = { path = "shared/common" }
+macros = { path = "shared/macros" }
