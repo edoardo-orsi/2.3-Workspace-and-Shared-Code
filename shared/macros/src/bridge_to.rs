@@ -15,27 +15,43 @@ pub fn implement_structure_exporter(input: TokenStream) -> TokenStream {
     if let Data::Enum(data) = input.data {
         for variant in data.variants {
             let variant_name = &variant.ident;
-            if let Fields::Unnamed(f) = &variant.fields {
-                if let Some(field) = f.unnamed.first() {
-                    let ty = &field.ty;
-                    let type_string = quote!(#ty).to_string();
 
-                    // SKIP duplicate types (like multiple Strings) to avoid compilation errors
-                    if seen_types.contains(&type_string) {
-                        continue;
-                    }
-                    seen_types.insert(type_string);
+            // CHECK: Does this variant have the #[bridge] attribute?
+            let has_bridge = variant
+                .attrs
+                .iter()
+                .any(|attr| attr.path().is_ident("bridge"));
 
-                    // Use Spacing::Joint to ensure $target and $bridge_variant work correctly
-                    let d = Punct::new('$', Spacing::Joint);
+            if has_bridge {
+                if let Fields::Unnamed(f) = &variant.fields {
+                    if let Some(field) = f.unnamed.first() {
+                        let ty = &field.ty;
+                        let type_string = quote!(#ty).to_string();
 
-                    variants_code.push(quote! {
+                        // SKIP duplicate types (like multiple Strings) to avoid compilation errors
+                        if seen_types.contains(&type_string) {
+                            continue;
+                        }
+                        seen_types.insert(type_string);
+
+                        // Use Spacing::Joint to ensure $target and $bridge_variant work correctly
+                        let d = Punct::new('$', Spacing::Joint);
+
+                        variants_code.push(quote! {
                         impl From<#ty> for #d target {
                             fn from(err: #ty) -> Self {
+                                // Log the error conversion for OpenTelemetry
+                                tracing::error!(
+                                    error_type = %std::any::type_name::<#ty>(),
+                                    error_variant = %stringify!(#variant_name),
+                                    "Error bridged to {}", stringify!(#d target)
+                                );
+                                    
                                 #d target :: #d bridge_variant ( #name :: #variant_name ( err.into() ) )
                             }
                         }
                     });
+                    }
                 }
             }
         }

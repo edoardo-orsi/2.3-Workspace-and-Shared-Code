@@ -3,7 +3,6 @@ use axum::response::{IntoResponse, Response};
 use axum::Json;
 use common::{CommonError, ErrorLogic};
 use serde_json::json;
-use std::net::AddrParseError;
 use thiserror::Error;
 
 #[derive(Error, Debug)]

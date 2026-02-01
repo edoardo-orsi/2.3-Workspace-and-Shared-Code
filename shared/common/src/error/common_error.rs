@@ -1,5 +1,4 @@
 use macros::ExposeStructure;
-use std::net::AddrParseError;
 use thiserror::Error;
 use tonic::codegen::http::StatusCode;
 
@@ -18,18 +17,23 @@ pub enum CommonError {
     #[error("Internal server error: {0}")]
     InternalError(String),
 
+    #[bridge]
     #[error("Address parse error: {0}")]
-    AddrParseError(#[from] AddrParseError),
+    AddrParseError(#[from] std::net::AddrParseError),
 
+    #[bridge]
     #[error("Transport/Connection error: {0}")]
     TransportError(#[from] tonic::transport::Error),
 
+    #[bridge]
     #[error("gRPC status error: {0}")]
     GrpcError(#[from] tonic::Status),
 
+    #[bridge]
     #[error("Invalid URI: {0}")]
     UriError(#[from] tonic::codegen::http::uri::InvalidUri),
 
+    #[bridge]
     #[error("IO error: {0}")]
     IoError(#[from] std::io::Error),
 
