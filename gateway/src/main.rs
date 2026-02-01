@@ -46,3 +46,17 @@ async fn main() -> Result<(), GatewayError> {
 
     Ok(())
 }
+
+// TODO macros for From implementation on Gateway Error - prettify error chain output print
+// Error: Common(TransportError(tonic::transport::Error(Transport, ConnectError(ConnectError("tcp connect error", 127.0.0.1:50051, Os { code: 111, kind: ConnectionRefused, message: "Connection refused" })))))
+// TODO mandatory secret
+// #[derive(Deserialize, Validate)]
+// pub struct DatabaseConfig {
+//     #[validate(required(code = "missing_secret"))]
+//     pub password: Option<String>,
+// }
+// #[validate(required)] is typically used on Option<T> types to ensure they aren't None.
+// (code = "missing_secret") Overrides the default code and let us have a ley in the validation to derive the proper error message
+// To make certain secrets mandatory it is possible to use the #[validate(required)] attribute
+// to the sensitive fields in your Rust structs. If the secret isn't found in YAML, Env, or the Secret Dir,
+// the config.validate() call at the end of the trait will catch it and prevent the service from running without a password.

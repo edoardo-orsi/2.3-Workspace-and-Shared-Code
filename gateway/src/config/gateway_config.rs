@@ -4,18 +4,6 @@ use serde::Deserialize;
 use std::path::Path;
 use validator::Validate;
 
-// TODO mandatory secret
-// #[derive(Deserialize, Validate)]
-// pub struct DatabaseConfig {
-//     #[validate(required(code = "missing_secret"))]
-//     pub password: Option<String>,
-// }
-// #[validate(required)] is typically used on Option<T> types to ensure they aren't None.
-// (code = "missing_secret") Overrides the default code and let us have a ley in the validation to derive the proper error message
-// To make certain secrets mandatory it is possible to use the #[validate(required)] attribute
-// to the sensitive fields in your Rust structs. If the secret isn't found in YAML, Env, or the Secret Dir,
-// the config.validate() call at the end of the trait will catch it and prevent the service from running without a password.
-
 // Since GatewayConfig contains BaseConfig as a nested field,
 // we should only instantiate GatewayConfig.
 //
