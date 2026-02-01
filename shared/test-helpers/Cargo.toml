@@ -1,5 +1,5 @@
 [package]
-name = "test-helpers"
+name = "test_helpers"
 version.workspace = true
 edition.workspace = true
 authors.workspace = true

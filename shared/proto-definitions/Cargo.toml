@@ -1,5 +1,5 @@
 [package]
-name = "proto-definitions"
+name = "proto_definitions"
 version.workspace = true
 edition.workspace = true
 authors.workspace = true

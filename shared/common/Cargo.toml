@@ -15,8 +15,13 @@ tonic.workspace = true
 thiserror.workspace = true
 validator.workspace = true
 
+macros.workspace = true
+
 [dev-dependencies]
-test-helpers = { path = "../test-helpers" }
+# Tracing
 tracing-test.workspace = true
+
+# Testing
+test_helpers.workspace = true
 tempdir.workspace = true
 serial_test.workspace = true

@@ -49,6 +49,7 @@ proc-macro2 = "1.0.106"
 
 # Internal crates
 gateway = { path = "./gateway" }
-proto_definition = { path = "shared/proto-definitions" }
+proto_definitions = { path = "shared/proto-definitions" }
 common = { path = "shared/common" }
 macros = { path = "shared/macros" }
+test_helpers = { path = "shared/test-helpers" }

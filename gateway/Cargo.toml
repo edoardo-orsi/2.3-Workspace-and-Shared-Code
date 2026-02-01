@@ -6,8 +6,8 @@ authors.workspace = true
 
 [dependencies]
 # Workspaces
-common = { path = "../shared/common" }
-proto-definitions = { path = "../shared/proto-definitions" }
+common.workspace = true
+proto_definitions.workspace = true
 
 # Communication
 axum.workspace = true
@@ -21,13 +21,11 @@ thiserror.workspace = true
 
 # Tracing
 tracing.workspace = true
-tracing-subscriber.workspace = true
 
 # gRPC
 tonic.workspace = true
-prost.workspace = true
 
 [dev-dependencies]
-test-helpers = { path = "../shared/test-helpers" }
+test_helpers.workspace = true
 tempdir.workspace = true
 serial_test.workspace = true
