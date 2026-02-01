@@ -6,7 +6,7 @@ use tonic::transport::Channel;
 use tonic::Request;
 use tracing::{debug, info, instrument};
 
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 pub struct GreeterServiceClient {
     client: GreeterClient<Channel>,
 }

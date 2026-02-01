@@ -1,11 +1,12 @@
 use crate::services::greeter::greeter_client::GreeterServiceClient;
 use crate::GatewayError;
 use axum::extract::{Path, State};
-use axum::Json;
+use axum::{debug_handler, Json};
 use proto_definitions::greeter_v1::HelloResponse;
 use std::time::{SystemTime, UNIX_EPOCH};
 use tracing::{info, instrument};
 
+#[debug_handler]
 #[instrument(skip(greeter))]
 // The skip argument in the instrument macro must match the variable name
 // of the function argument you want to ignore
