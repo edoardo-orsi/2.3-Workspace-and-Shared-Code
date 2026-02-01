@@ -15,35 +15,7 @@ pub enum GatewayError {
     GatewaySpecific(String),
 }
 
-impl From<std::io::Error> for GatewayError {
-    fn from(err: std::io::Error) -> Self {
-        GatewayError::Common(CommonError::IoError(err))
-    }
-}
-
-impl From<tonic::Status> for GatewayError {
-    fn from(err: tonic::Status) -> Self {
-        GatewayError::Common(CommonError::GrpcError(err))
-    }
-}
-
-impl From<tonic::transport::Error> for GatewayError {
-    fn from(err: tonic::transport::Error) -> Self {
-        GatewayError::Common(CommonError::TransportError(err))
-    }
-}
-
-impl From<AddrParseError> for GatewayError {
-    fn from(err: AddrParseError) -> Self {
-        GatewayError::Common(CommonError::AddrParseError(err))
-    }
-}
-
-impl From<tonic::codegen::http::uri::InvalidUri> for GatewayError {
-    fn from(err: tonic::codegen::http::uri::InvalidUri) -> Self {
-        GatewayError::Common(CommonError::UriError(err))
-    }
-}
+common::propagate_commonerror!(GatewayError, Common);
 
 impl IntoResponse for GatewayError {
     fn into_response(self) -> Response {

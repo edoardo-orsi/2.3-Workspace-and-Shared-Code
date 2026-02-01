@@ -1,9 +1,10 @@
+use macros::ExposeStructure;
 use std::net::AddrParseError;
 use thiserror::Error;
 use tonic::codegen::http::StatusCode;
 
 /// Application-wide error type
-#[derive(Error, Debug)]
+#[derive(Error, Debug, ExposeStructure)]
 pub enum CommonError {
     #[error("Configuration error: {0}")]
     ConfigError(String),
