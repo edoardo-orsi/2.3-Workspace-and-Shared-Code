@@ -9,16 +9,16 @@
     }
   },
   "features": {
-    "ghcr.io/devcontainers/features/common-utils:1": {
-        "configureZshAsDefaultShell": true
-    },
+    "ghcr.io/devcontainers/features/common-utils:2": {},
     // Switch to the official Microsoft protoc feature
     "ghcr.io/devcontainers/features/sshd:1": {}, 
+    "ghcr.io/devcontainers-extra/features/protoc:1": {}
   },
   "postCreateCommand": "sudo apt-get update && sudo apt-get install -y protobuf-compiler libprotobuf-dev",
   // Ensure the user 'vscode' (default in MS images) has permissions
   "remoteUser": "vscode"
 }
+
 
 
 
