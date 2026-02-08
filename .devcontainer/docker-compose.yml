@@ -25,7 +25,7 @@ services:
       - "5432:5432"
     volumes:
       # Persists your database data in a Docker volume (not local folder)
-      - postgres_data:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql
 
   otel:
     image: grafana/otel-lgtm:0.17.1
