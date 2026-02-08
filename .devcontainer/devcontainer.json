@@ -5,7 +5,10 @@
   "workspaceFolder": "/workspace",
   "customizations": {
     "jetbrains": {
-      "backend": "RustRover"
+      "backend": "RustRover",
+      "plugins": [
+        "com.intellij.modules.xml"
+      ]
     }
   },
   "features": {
@@ -18,6 +21,7 @@
   // Ensure the user 'vscode' (default in MS images) has permissions
   "remoteUser": "vscode"
 }
+
 
 
 
