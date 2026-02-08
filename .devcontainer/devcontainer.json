@@ -1,0 +1,18 @@
+{
+  "name": "Rust Microservices Workspace",
+  "dockerComposeFile": "docker-compose.yml",
+  "service": "app",
+  "workspaceFolder": "/workspace",
+  "customizations": {
+    "jetbrains": {
+      "backend": "RustRover"
+    }
+  },
+  "features": {
+    "ghcr.io/devcontainers/features/common-utils:1": {},
+    // This adds the gRPC protoc compiler automatically
+    "ghcr.io/devcontainers-contrib/features/protoc:1": {}
+  },
+  // Ensure the user 'vscode' (default in MS images) has permissions
+  "remoteUser": "vscode"
+}
