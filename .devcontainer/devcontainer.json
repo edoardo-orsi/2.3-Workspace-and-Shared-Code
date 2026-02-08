@@ -14,11 +14,12 @@
     },
     // Switch to the official Microsoft protoc feature
     "ghcr.io/devcontainers/features/sshd:1": {}, 
-    "ghcr.io/devcontainers-contrib/features/protoc:1": {}
   },
+  "postCreateCommand": "sudo apt-get update && sudo apt-get install -y protobuf-compiler libprotobuf-dev",
   // Ensure the user 'vscode' (default in MS images) has permissions
   "remoteUser": "vscode"
 }
+
 
 
 
