@@ -4,22 +4,21 @@
   "service": "app",
   "workspaceFolder": "/workspace",
   "customizations": {
-    "vscode": {
-        "extensions": [
-            "rust-lang.rust-analyzer",
-            "tamasfe.even-better-toml",
-            "serayuzgur.crates",
-            "vadimcn.vscode-lldb" // For debugging
-        ]
+    "jetbrains": {
+      "backend": "RustRover"
     }
   },
   "features": {
-    "ghcr.io/devcontainers/features/common-utils:1": {},
-    // This adds the gRPC protoc compiler automatically
+    "ghcr.io/devcontainers/features/common-utils:1": {
+        "configureZshAsDefaultShell": true
+    },
+    // Switch to the official Microsoft protoc feature
+    "ghcr.io/devcontainers/features/sshd:1": {}, 
     "ghcr.io/devcontainers-contrib/features/protoc:1": {}
   },
   // Ensure the user 'vscode' (default in MS images) has permissions
   "remoteUser": "vscode"
 }
+
 
 
