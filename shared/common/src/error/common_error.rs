@@ -34,6 +34,10 @@ pub enum CommonError {
     UriError(#[from] tonic::codegen::http::uri::InvalidUri),
 
     #[bridge]
+    #[error("Reflection service error: {0}")]
+    ReflectionError(#[from] tonic_reflection::server::Error),
+
+    #[bridge]
     #[error("IO error: {0}")]
     IoError(#[from] std::io::Error),
 
@@ -59,6 +63,7 @@ impl CommonError {
                 tonic::Code::PermissionDenied => StatusCode::FORBIDDEN,
                 _ => StatusCode::INTERNAL_SERVER_ERROR,
             },
+            CommonError::ReflectionError(_) => StatusCode::INTERNAL_SERVER_ERROR,
             _ => StatusCode::INTERNAL_SERVER_ERROR,
         }
     }

@@ -24,6 +24,7 @@ tracing.workspace = true
 
 # gRPC
 tonic.workspace = true
+tonic-reflection.workspace = true
 
 [dev-dependencies]
 test_helpers.workspace = true

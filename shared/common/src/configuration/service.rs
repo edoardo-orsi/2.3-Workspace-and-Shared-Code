@@ -1,7 +1,7 @@
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use validator::Validate;
 
-#[derive(Debug, Clone, PartialEq, Eq, Validate, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Validate, Serialize, Deserialize)]
 pub struct ServiceConfig {
     #[validate(length(min = 1, message = "Service name cannot be empty"))]
     pub name: String,

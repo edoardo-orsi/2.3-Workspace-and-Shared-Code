@@ -1,6 +1,24 @@
 [package]
 name = "greeter_service"
-version = "0.1.0"
-edition = "2024"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
 
 [dependencies]
+# Workspaces
+common.workspace = true
+proto_definitions.workspace = true
+
+# Communication
+tokio.workspace = true
+serde.workspace = true
+
+# Config & Error
+validator.workspace = true
+
+# Tracing
+tracing.workspace = true
+
+# gRPC
+tonic.workspace = true
+tonic-reflection.workspace = true

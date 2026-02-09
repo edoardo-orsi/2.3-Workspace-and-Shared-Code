@@ -6,6 +6,7 @@ authors.workspace = true
 
 [dependencies]
 serde.workspace = true
+tokio.workspace = true
 
 tracing.workspace = true
 tracing-subscriber.workspace = true
@@ -16,6 +17,7 @@ thiserror.workspace = true
 validator.workspace = true
 
 macros.workspace = true
+tonic-reflection.workspace = true
 
 [dev-dependencies]
 # Tracing

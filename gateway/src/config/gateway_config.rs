@@ -1,5 +1,5 @@
-use crate::{GatewayError, ServerConfig, ServicesConfig};
-use common::{BaseConfig, ServiceConfigLogic};
+use crate::{GatewayError, ServicesConfig};
+use common::{BaseConfig, ServerConfig, ServiceConfigLogic};
 use serde::Deserialize;
 use std::path::Path;
 use validator::Validate;

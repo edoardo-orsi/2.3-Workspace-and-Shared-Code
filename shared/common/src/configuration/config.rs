@@ -2,12 +2,12 @@ use crate::configuration::logging::LoggingConfig;
 use crate::configuration::service::ServiceConfig;
 use crate::error::CommonError;
 use crate::ServiceConfigLogic;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use std::path::Path;
 use validator::Validate;
 
 /// Shared configuration
-#[derive(Debug, Clone, PartialEq, Eq, Validate, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Validate, Serialize, Deserialize)]
 pub struct BaseConfig {
     #[validate(nested)]
     pub service: ServiceConfig,
