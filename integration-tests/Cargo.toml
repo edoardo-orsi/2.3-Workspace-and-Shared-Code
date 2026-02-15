@@ -1,0 +1,22 @@
+[package]
+name = "integration_test"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+
+[dependencies]
+# Communication
+serde_json.workspace = true
+tokio.workspace = true
+axum.workspace = true
+reqwest.workspace = true
+urlencoding.workspace = true
+futures.workspace = true
+
+# gRPC
+tonic.workspace = true
+
+# Internal crates
+gateway.workspace = true
+proto_definitions.workspace = true
+greeter_service.workspace = true

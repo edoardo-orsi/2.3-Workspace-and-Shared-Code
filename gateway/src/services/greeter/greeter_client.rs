@@ -17,7 +17,7 @@ impl GreeterServiceClient {
 
         // Create a persistent channel
         let channel = Channel::from_shared(endpoint)?
-            .timeout(timeout.unwrap_or_else(|| default_timeout))
+            .timeout(timeout.unwrap_or(default_timeout))
             .connect()
             .await?;
 

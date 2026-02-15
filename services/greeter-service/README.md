@@ -105,8 +105,11 @@ server:
 
 **Loading**:
 ```rust
-let config = GreeterConfig::load_auto()?;
-config.base.init_logging()?;
+fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let config = GreeterConfig::load_auto()?;
+    config.base.init_logging()?;
+    Ok(())
+}
 ```
 
 ### Service Implementation (`src/service.rs`)
@@ -144,11 +147,14 @@ Startup sequence:
 6. Listen for shutdown signal
 
 ```rust
-Server::builder()
-    .add_service(greeter)
-    .add_service(greeter_reflection_service)
-    .serve_with_shutdown(addr, shutdown_signal())
-    .await?;
+fn main() -> Result<(), Box<dyn std::error::Error>> {
+    Server::builder()
+        .add_service(greeter)
+        .add_service(greeter_reflection_service)
+        .serve_with_shutdown(addr, shutdown_signal())
+        .await?;
+        Ok(())
+}
 ```
 
 ## Observability
@@ -156,7 +162,7 @@ Server::builder()
 ### Structured Logging
 
 Every RPC is instrumented:
-```rust
+```rust,no_run
 #[instrument(skip(self), fields(name = %request.get_ref().name))]
 async fn say_hello(&self, request: Request<HelloRequest>) -> ... {
     info!("Received SayHello request");
@@ -223,7 +229,7 @@ grpcurl -plaintext -d '{"name":"Alice"}' \
 
 All inputs are validated before processing:
 
-```rust
+```rust,no_run
 // Empty name
 if name.is_empty() {
     return Err(Status::invalid_argument("Name cannot be empty"));
@@ -476,7 +482,7 @@ cargo build --package proto_definitions
 ```
 
 3. **Implement Method**:
-```rust
+```rust,no_run
 async fn say_goodbye(
     &self,
     request: Request<GoodbyeRequest>,
@@ -487,7 +493,7 @@ async fn say_goodbye(
 
 ### Adding State
 
-```rust
+```rust,no_run
 pub struct GreeterService {
     greeting_count: Arc<AtomicU64>,
 }
@@ -535,7 +541,7 @@ debug!("Processing request for {}", name);
 ```
 
 **Add timing**:
-```rust
+```rust,no_run
 let start = Instant::now();
 // ... process ...
 debug!("Processing took {:?}", start.elapsed());
