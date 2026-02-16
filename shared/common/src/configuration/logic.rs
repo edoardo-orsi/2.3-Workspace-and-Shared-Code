@@ -45,7 +45,7 @@ use validator::Validate;
 /// Final result in production:
 /// ```yaml
 /// database:
-///   host: "prod-db.internal"      # From env var
+///   host: "prod-db.internal"       # From env var
 ///   port: 5432                     # From base
 ///   max_connections: 100           # From prod config
 /// ```
@@ -183,10 +183,22 @@ pub trait ServiceConfigLogic: DeserializeOwned + Validate {
                 .canonicalize()
                 .unwrap_or_else(|_| base_config_path.clone());
 
+            let cwd = std::env::current_dir()
+                .map(|p| p.display().to_string())
+                .unwrap_or_else(|_| "unknown".to_string());
+
             return Err(CommonError::ConfigError(format!(
-                "Config file not found at: {}. Current directory: {:?}",
+                "Config file not found!\n\
+                \n\
+                Expected location: {}\n\
+                Current directory: {}\n\
+                Service name: {}\n\
+                \n\
+                Make sure config.yaml exists in the correct location.\n\
+                For services in subdirectories, run from workspace root or set working directory correctly.",
                 canonical.display(),
-                std::env::current_dir()
+                cwd,
+                Self::get_service_name()
             )));
         }
 
@@ -275,30 +287,33 @@ pub trait ServiceConfigLogic: DeserializeOwned + Validate {
 
     /// Extracts service name from the running binary
     ///
-    /// Used for:
-    /// - Auto-discovery of config directory
-    /// - Service-specific environment variable prefix
-    /// - Logging context
+    /// # Enhanced Detection
+    ///
+    /// Now handles:
+    /// - Full paths: `/usr/local/bin/greeter_service` → "greeter_service"
+    /// - Relative paths: `./target/debug/gateway` → "gateway"
+    /// - Direct names: `greeter_service` → "greeter_service"
+    /// - Hyphens: `greeter-service` → "greeter-service"
+    /// - Underscores: `greeter_service` → "greeter_service"
     ///
     /// # Returns
     ///
     /// The binary filename without path or extension
-    ///
-    /// # Examples
-    ///
-    /// ```text
-    /// Binary: /usr/local/bin/gateway    → "gateway"
-    /// Binary: ./target/debug/greeter    → "greeter"
-    /// Binary: service-engine            → "service-engine"
-    /// ```
     fn get_service_name() -> String {
-        std::env::current_exe()
+        let exe_path = std::env::current_exe()
             .ok()
-            .and_then(|p| p.file_stem().map(|s| s.to_string_lossy().into_owned()))
-            .unwrap_or_else(|| {
-                warn!("Could not determine service name from binary, using 'APP'");
-                "APP".to_string()
-            })
+            .and_then(|p| p.file_stem().map(|s| s.to_string_lossy().into_owned()));
+
+        match exe_path {
+            Some(name) => {
+                debug!(service_name = %name, "Detected service name from binary");
+                name
+            }
+            None => {
+                warn!("Could not determine service name from binary, using 'unknown'");
+                "unknown".to_string()
+            }
+        }
     }
 
     /// Formats service name for environment variable prefix
@@ -318,7 +333,12 @@ pub trait ServiceConfigLogic: DeserializeOwned + Validate {
     /// Service: api-v2          → API_V2__
     /// ```
     fn get_env_prefix() -> String {
-        Self::get_service_name().to_uppercase().replace('-', "_")
+        let prefix = Self::get_service_name()
+            .to_uppercase()
+            .replace('-', "_");
+
+        debug!(env_prefix = %prefix, "Environment variable prefix");
+        prefix
     }
 
     /// Gets the secrets directory path
@@ -349,79 +369,138 @@ pub trait ServiceConfigLogic: DeserializeOwned + Validate {
             .unwrap_or_else(|_| std::path::PathBuf::from("/run/secrets"))
     }
 
-    /// Checks if a directory exists and contains at least one file.
-    fn has_files(dir: &Path) -> bool {
-        dir.is_dir()
-            && fs::read_dir(dir)
-                .map(|mut i| i.next().is_some()) // Check if at least one entry exists
-                .unwrap_or(false)
-    }
-
-    /// Automatically discovers the configuration directory
+    /// Automatically discovers the configuration directory with enhanced logging
     ///
-    /// This method implements intelligent path discovery:
-    /// 1. Checks current working directory for config.yaml
-    /// 2. Checks `{cwd}/{service_name}/config.yaml`
-    /// 3. Falls back to current working directory
+    /// This method implements intelligent path discovery for different workspace structures:
     ///
-    /// This allows the service to run from:
-    /// - The service directory itself (cargo run)
-    /// - The workspace root (cargo run --bin service_name)
-    /// - Any directory with proper config structure
+    /// # Search Order
+    ///
+    /// 1. **Current directory** - `{cwd}/config.yaml`
+    /// 2. **Service subdirectory** - `{cwd}/{service_name}/config.yaml`
+    /// 3. **Services directory** - `{cwd}/services/{service_name}/config.yaml`
+    /// 4. **Gateway directory** - `{cwd}/gateway/config.yaml`
+    /// 5. **Parent service directory** - `{cwd}/../{service_name}/config.yaml`
+    /// 6. **Workspace services** - `{cwd}/../services/{service_name}/config.yaml`
+    ///
+    /// # Workspace Structure Support
+    ///
+    /// ```text
+    /// workspace/
+    /// ├── gateway/
+    /// │   └── config.yaml          ← Found when binary is "gateway"
+    /// └── services/
+    ///     ├── greeter_service/
+    ///     │   └── config.yaml      ← Found when binary is "greeter_service"
+    ///     └── auth_service/
+    ///         └── config.yaml      ← Found when binary is "auth_service"
+    /// ```
+    ///
+    /// # Running from Different Locations
+    ///
+    /// **From workspace root**:
+    /// ```bash
+    /// workspace/$ cargo run --bin greeter_service
+    /// # Finds: workspace/services/greeter_service/config.yaml
+    /// ```
+    ///
+    /// **From service directory**:
+    /// ```bash
+    /// workspace/services/greeter_service/$ cargo run
+    /// # Finds: ./config.yaml
+    /// ```
+    ///
+    /// **From services directory**:
+    /// ```bash
+    /// workspace/services/$ cargo run --bin greeter_service
+    /// # Finds: ./greeter_service/config.yaml
+    /// ```
     ///
     /// # Returns
     ///
-    /// The discovered configuration directory path
+    /// The discovered configuration directory path. Falls back to current
+    /// directory if no config.yaml is found (error will occur in load_and_validate).
     ///
-    /// # Examples
+    /// # Logging
     ///
-    /// ```text
-    /// # Running from workspace root
-    /// workspace/
-    /// ├── gateway/
-    /// │   └── config.yaml     ← Found at workspace/gateway/
-    /// └── services/
-    ///     └── greeter/
-    ///         └── config.yaml ← Found at workspace/services/greeter/
-    ///
-    /// # Running from service directory
-    /// gateway/
-    /// └── config.yaml         ← Found at current directory
-    /// ```
+    /// Logs the discovery process at DEBUG level, showing:
+    /// - Service name detected
+    /// - Current working directory
+    /// - Each path checked
+    /// - Final selected path
     fn auto_base_dir() -> std::path::PathBuf {
         let service_name = Self::get_service_name();
         let current_working_directory = std::env::current_dir().unwrap_or_default();
 
-        debug!(
+        info!(
             service_name = %service_name,
             cwd = %current_working_directory.display(),
             "Auto-discovering configuration directory"
         );
+
+        // List of candidate paths to check in order
+        let candidates = vec![
+            // 1. Current directory (running from service directory)
+            (current_working_directory.clone(), "current directory"),
+
+            // 2. Service subdirectory (running from workspace root, top-level service)
+            (current_working_directory.join(&service_name), "service subdirectory"),
+
+            // 3. Services subdirectory (running from workspace root, services/service_name)
+            (current_working_directory.join("services").join(&service_name), "services subdirectory"),
+
+            // 4. Gateway directory (special case for gateway service)
+            (current_working_directory.join("gateway"), "gateway directory"),
+
+            // 5. Parent directory's service (running from nested location)
+            (current_working_directory.parent().unwrap_or(&current_working_directory).join(&service_name), "parent's service directory"),
+
+            // 6. Parent directory's services subdirectory
+            (current_working_directory.parent().unwrap_or(&current_working_directory).join("services").join(&service_name), "parent's services subdirectory"),
+        ];
+
+        // Check each candidate
+        for (path, description) in candidates {
+            let config_path = path.join("config.yaml");
+
+            debug!(
+                path = %path.display(),
+                config_path = %config_path.display(),
+                exists = config_path.exists(),
+                description = description,
+                "Checking candidate path"
+            );
+
+            if config_path.exists() {
+                info!(
+                    config_dir = %path.display(),
+                    description = description,
+                    "Found config.yaml"
+                );
+                return path;
+            }
+        }
 
         if current_working_directory.join("config.yaml").exists() {
             info!(config_dir = %current_working_directory.display(), "Found config in current directory");
             return current_working_directory;
         }
 
-        // Check service subdirectory
-        let service_dir = current_working_directory.join(&service_name);
-        if service_dir.join("config.yaml").exists() {
-            info!(config_dir = %service_dir.display(), "Found config in service subdirectory");
-            return current_working_directory.join(&service_name)
-        }
-
-        // Check services/{service_name} (for workspace structure)
-        let services_dir = current_working_directory.join("services").join(&service_name);
-        if services_dir.join("config.yaml").exists() {
-            info!(config_dir = %services_dir.display(), "Found config in services directory");
-            return services_dir;
-        }
-
-        // Fallback to current directory
+        // If nothing found, log warning and return cwd
         warn!(
+            service_name = %service_name,
             cwd = %current_working_directory.display(),
-            "Could not auto-discover config directory, using current directory"
+            "Could not auto-discover config directory. Checked paths:\n  \
+             - {}/config.yaml\n  \
+             - {}/{}/config.yaml\n  \
+             - {}/services/{}/config.yaml\n  \
+             - {}/gateway/config.yaml\n  \
+             Falling back to current directory. This will likely fail.",
+            current_working_directory.display(),
+            current_working_directory.display(), service_name,
+            current_working_directory.display(), service_name,
+            current_working_directory.display()
         );
+
         current_working_directory
     }
 
@@ -479,8 +558,8 @@ pub trait ServiceConfigLogic: DeserializeOwned + Validate {
     /// ```text
     /// /run/secrets/
     /// ├── database_password  (contents: "secret123")
-    /// ├── api_key           (contents: "key-abc-xyz")
-    /// └── jwt_secret        (contents: "jwt-secret-here")
+    /// ├── api_key            (contents: "key-abc-xyz")
+    /// └── jwt_secret         (contents: "jwt-secret-here")
     ///
     /// Result:
     /// {
